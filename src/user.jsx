@@ -13,11 +13,12 @@ const User = () => {
   const [attendance, setAttendance] = useState(null);
 
   const details = location.state?.result;
+  console.log(details);
   const isLoggedIn = localStorage.getItem("userLoggedIn");
-  const username = details[0]["name"];
-
+  const username = details["name"];
+  console.log(username);
   useEffect(() => {
-    if (!isLoggedIn || isLoggedIn === "false") {
+    if (isLoggedIn === "false") {
       navigate("/");
     }
 
@@ -26,6 +27,7 @@ const User = () => {
         const response = await axios.get(
           `http://localhost:5000/users/${username}/images`
         );
+        console.log(response.data);
         setStoredImage(response.data["details"]["stored_image"]);
       } catch (error) {
         console.error("Failed to fetch stored image:", error);
@@ -37,6 +39,7 @@ const User = () => {
         const response = await axios.get(
           `http://localhost:5000/user_attendance/${username}`
         );
+        console.log(response.data);
         setAttendance(response.data);
       } catch (error) {
         console.error("Failed to fetch attendance:", error);
@@ -97,13 +100,8 @@ const User = () => {
   const logoutfun = () => {
     localStorage.setItem("userLoggedIn", "false");
     localStorage.removeItem("username");
-    navigate("/QRscanner");
+    navigate("/login");
   };
-
-  if (!isLoggedIn) {
-    navigate("/"); // Redirect if the user is not logged in
-    return null; // Prevent rendering the home page if not logged in
-  }
 
   return (
     <div className="container mt-5">
@@ -130,7 +128,9 @@ const User = () => {
               Log Out
             </button>
             <button
-              onClick={navigate("/display-images")}
+              onClick={() => {
+                navigate("/display-images");
+              }}
               className="btn btn-info ms-2"
             >
               View User details

@@ -25,7 +25,7 @@ function App() {
               Face Recognition KMIT
             </a>
             <div className="navbar-nav ml-auto">
-              <a className="nav-link text-white" href="/QRscanner">
+              <a className="nav-link text-white" href="/">
                 Login
               </a>
               <a className="nav-link text-white" href="/register">

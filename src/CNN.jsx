@@ -32,7 +32,7 @@ const CNN = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/login",
+        "http://localhost:5000/CNN-login",
         formData
       );
       const result = response.data;
@@ -73,8 +73,9 @@ const CNN = () => {
         <Webcam
           ref={webcamRef}
           screenshotFormat="image/jpeg"
-          style={{ width: "100%", maxWidth: "800px", height: "auto" }}
-          className="mb-3"
+          className="border p-2 rounded"
+          width={450} // Increased camera size by 50%
+          height={360}
         />
       </div>
       <input

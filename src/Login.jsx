@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import Webcam from "react-webcam";
+import QrScanner from "react-qr-scanner";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,6 +12,8 @@ const Login = () => {
   const [message, setMessage] = useState("");
   const [process, setProcess] = useState(true);
   const [rollnumber, setRollnumber] = useState("");
+  const [showQrScanner, setShowQrScanner] = useState(false);
+  const [error, setError] = useState("");
 
   // Set rollnumber from location.state if provided
   useEffect(() => {
@@ -19,7 +22,19 @@ const Login = () => {
     }
   }, [location.state]);
 
-  // Function to capture image and verify it
+  const handleScan = (data) => {
+    if (data) {
+      const scannedRollNumber = data.text.split(",")[0];
+      setRollnumber(scannedRollNumber);
+      setShowQrScanner(false); // Automatically close QR scanner after successful scan
+    }
+  };
+
+  const handleError = (err) => {
+    setError("Error accessing the camera or scanning QR code.");
+    console.error(err);
+  };
+
   const captureAndVerify = async () => {
     setProcess(false); // Disable button
     setMessage(""); // Clear previous messages
@@ -51,10 +66,8 @@ const Login = () => {
       const result = response.data;
 
       // Process the response
-      console.log(result);
       const uname = result["name"];
-      console.log(uname);
-      if (uname !== "Unknown") {
+      if (uname !== "Unknown" && uname !== "user not recognised") {
         localStorage.setItem("userLoggedIn", "true"); // Mark user as logged in
         localStorage.setItem("username", uname);
 
@@ -62,7 +75,7 @@ const Login = () => {
         if (uname === "23BD1A056D") {
           navigate("/home", { state: { admin: uname } });
         } else {
-          navigate("/user", { state: { result } });
+          navigate("/user", { state: { result: result } });
         }
       } else {
         setMessage("Face not recognized.");
@@ -77,6 +90,13 @@ const Login = () => {
     } finally {
       setProcess(true); // Enable button
     }
+  };
+
+  const previewStyle = {
+    height: "300px",
+    width: "100%",
+    maxWidth: "400px",
+    objectFit: "cover",
   };
 
   return (
@@ -111,13 +131,71 @@ const Login = () => {
 
       <button
         onClick={captureAndVerify}
-        className="btn btn-primary"
+        className="btn btn-primary me-2"
         disabled={!process}
       >
         {process ? "Capture and Verify" : "Processing..."}
       </button>
 
-      <p className="mt-2 text-danger">{message}</p>
+      <button
+        onClick={() => setShowQrScanner(true)}
+        className="btn btn-secondary"
+      >
+        Scan QR Code
+      </button>
+
+      {message && <p className="mt-2 text-danger">{message}</p>}
+
+      {showQrScanner && (
+        <div
+          style={{
+            position: "fixed",
+            top: "0",
+            left: "0",
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            zIndex: "1050",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              width: "90%",
+              maxWidth: "500px",
+            }}
+          >
+            <span
+              onClick={() => setShowQrScanner(false)}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "20px",
+                color: "#000",
+              }}
+            >
+              &times;
+            </span>
+            <h4 className="text-center">Scan QR Code</h4>
+            <QrScanner
+              delay={200}
+              style={previewStyle}
+              onError={handleError}
+              onScan={handleScan}
+            />
+            {error && <p className="text-danger mt-2">{error}</p>}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

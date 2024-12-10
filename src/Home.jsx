@@ -139,7 +139,7 @@ const Home = () => {
   const logoutfun = () => {
     localStorage.setItem("userLoggedIn", "false");
     localStorage.removeItem("username");
-    navigate("/QRscanner");
+    navigate("/login");
   };
 
   if (!isLoggedIn) {
